@@ -1,0 +1,69 @@
+/* ============================================================
+   VARIABLES.CSS
+   Sistema de diseño: colores, tipografía, espaciado y bordes.
+   Todo el resto del CSS consume estos tokens — no se deben
+   escribir valores "sueltos" (hex, px) fuera de este archivo
+   salvo excepciones puntuales muy justificadas.
+   ============================================================ */
+
+:root {
+  /* --- Paleta de color base (definida por el cliente) --- */
+  --bg: #F1F3EC;             /* Fondo general de la página */
+  --surface: #FAFBF7;        /* Fondo de tarjetas / paneles */
+  --text: #1C2620;           /* Texto principal */
+  --text-secondary: #5B6B60; /* Texto secundario / etiquetas */
+  --primary: #2563eb;        /* Acción principal, marca */
+  --income: #2F9E6B;         /* Todo lo relacionado a ingresos */
+  --expense: #C1443A;        /* Todo lo relacionado a gastos */
+  --budget: #D6A324;         /* Presupuesto / advertencias */
+  --border: #DCE0D5;         /* Líneas y separadores */
+
+  /* --- Variantes derivadas (para hover, fondos suaves, etc.) --- */
+  --primary-hover: #1d4ed8;
+  --income-soft: #E4F3EB;
+  --expense-soft: #F8E7E5;
+  --budget-soft: #FBF0D9;
+  --surface-hover: #F3F5EF;
+
+  /* --- Tipografía ---
+     Fraunces: serif con carácter, se usa en titulares y en la
+     cifra "hero" del balance — le da un aire de libro contable,
+     no de dashboard SaaS genérico.
+     Inter: sans-serif muy legible, con cifras tabulares reales,
+     ideal para montos y tablas de datos densas. */
+  --font-display: 'cascadia code';
+ 
+
+  --fs-hero: 2.75rem;
+  --fs-xl: 1.5rem;
+  --fs-lg: 1.125rem;
+  --fs-base: 1rem;
+  --fs-sm: 0.875rem;
+  --fs-xs: 0.75rem;
+
+  /* --- Espaciado (escala de 4px) --- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* --- Bordes / radios ---
+     Radios modestos y consistentes solo en dos tamaños: se evita
+     el "un mismo radio para todo" característico de kits genéricos. */
+  --radius-sm: 4px;
+  --radius-md: 10px;
+
+  --border-width: 1px;
+
+  /* --- Sombra única, muy sutil (se usa solo para elementos flotantes
+     como el modal, no para decorar tarjetas comunes) --- */
+  --shadow-float: 0 12px 32px rgba(28, 38, 32, 0.16);
+
+  /* --- Layout --- */
+  --max-width: 1240px;
+  --nav-height: 68px;
+}
