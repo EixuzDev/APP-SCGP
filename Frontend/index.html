@@ -6,13 +6,15 @@
     <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/var.css">
     <link rel="stylesheet" href="styles/components.css">
-    <script type="module" src="main.js" defer></script>
     <title>Aplicacion de Control de Gastos Personales</title>
      <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="icon" href="icon.png">
 </head>
 <body>
+   <!-- ================================
+            Barra de Navegación
+      ==============================0 -->
     <header class="navbar">
     <div class="container navbar__inner">
       <a href="#inicio" class="navbar__brand">
@@ -33,5 +35,205 @@
         </div>
     </div>
   </header>
+    <!-- =======================================================
+         KPIs: balance total, ingresos, gastos y % de ahorro
+         ======================================================= -->
+  <main class="container" id="inicio">
+    <section class="section">
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi">
+          <span class="kpi__label">Balance total</span>
+          <span class="kpi__value" id="kpi-balance">$0,00</span>
+          <span class="kpi__delta" id="kpi-balance-delta"></span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__label">Ingresos del mes</span>
+          <span class="kpi__value kpi__value--income" id="kpi-ingresos">$0,00</span>
+          <span class="kpi__delta">Este mes</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__label">Gastos del mes</span>
+          <span class="kpi__value kpi__value--expense" id="kpi-gastos">$0,00</span>
+          <span class="kpi__delta">Este mes</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__label">% de ahorro</span>
+          <span class="kpi__value" id="kpi-ahorro">0%</span>
+          <span class="kpi__delta">(Ingresos − Gastos) / Ingresos</span>
+        </div>
+      </div>
+    </section>
+    <!-- =======================================================
+         WORKSPACE: presupuesto + gráficos (izq) / historial (der)
+         ======================================================= -->
+    <div class="workspace">
+
+      <!-- Columna izquierda -->
+      <div class="stack">
+
+        <section class="section">
+          <div class="section__header">
+            <h2 class="section__title">Presupuesto por categoría</h2>
+            <p class="section__hint">Este mes</p>
+          </div>
+          <div class="panel">
+            <div class="budget-list" id="budget-list">
+              <!-- Generado dinámicamente por dashboard.js -->
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="reportes">
+          <div class="section__header">
+            <h2 class="section__title">Distribución de gastos</h2>
+          </div>
+          <div class="panel chart-card">
+            <canvas id="chart-categorias" height="220"></canvas>
+            <div class="chart-legend" id="chart-categorias-legend"></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section__header">
+            <h2 class="section__title">Evolución mensual</h2>
+          </div>
+          <div class="panel chart-card">
+            <canvas id="chart-evolucion" height="220"></canvas>
+          </div>
+        </section>
+      </div>
+
+      <!-- Columna derecha -->
+      <div class="stack">
+        <section class="section">
+          <div class="section__header">
+            <h2 class="section__title">Historial de actividad</h2>
+          </div>
+
+          <div class="filters">
+            <select id="filtro-tipo">
+              <option value="todos">Todos los tipos</option>
+              <option value="ingreso">Ingresos</option>
+              <option value="gasto">Gastos</option>
+            </select>
+            <select id="filtro-categoria">
+              <option value="todas">Todas las categorías</option>
+            </select>
+            <input type="date" id="filtro-desde" aria-label="Desde">
+            <input type="date" id="filtro-hasta" aria-label="Hasta">
+          </div>
+
+          <div class="panel">
+            <div class="tx-list" id="tx-list">
+              <!-- Generado dinámicamente por transactions.js -->
+            </div>
+            <p class="empty-state" id="tx-empty" hidden>Todavía no hay transacciones que coincidan con el filtro.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- =======================================================
+       MODAL: Nueva transacción
+       ======================================================= -->
+  <div class="modal-overlay" id="modal-transaccion" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-transaccion-titulo">
+      <div class="modal__header">
+        <h3 class="modal__title" id="modal-transaccion-titulo">Nueva transacción</h3>
+        <button class="modal__close" data-close-modal aria-label="Cerrar">&times;</button>
+      </div>
+
+      <form id="form-transaccion">
+        <div class="type-toggle" role="radiogroup" aria-label="Tipo de transacción">
+          <button type="button" data-type="ingreso" aria-pressed="true">Ingreso</button>
+          <button type="button" data-type="gasto" aria-pressed="false">Gasto</button>
+        </div>
+        <input type="hidden" id="tx-tipo" value="ingreso">
+
+        <div class="field" style="margin-top: var(--sp-4);">
+          <label for="tx-monto">Monto</label>
+          <input type="number" id="tx-monto" min="0.01" step="0.01" placeholder="0.00" required>
+        </div>
+
+        <div class="field">
+          <label for="tx-categoria">Categoría</label>
+          <select id="tx-categoria" required></select>
+        </div>
+
+        <div class="field">
+          <label for="tx-descripcion">Descripción</label>
+          <input type="text" id="tx-descripcion" placeholder="Ej: Supermercado, sueldo, alquiler..." required>
+        </div>
+
+        <div class="field">
+          <label for="tx-fecha">Fecha</label>
+          <input type="date" id="tx-fecha" required>
+        </div>
+
+        <p class="form-error" id="tx-form-error" hidden></p>
+
+        <div class="modal__footer">
+          <button type="button" class="btn btn--ghost" data-close-modal>Cancelar</button>
+          <button type="submit" class="btn btn--primary">Guardar transacción</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =======================================================
+       MODAL: Cuenta / Perfil (login + registro)
+       ======================================================= -->
+  <div class="modal-overlay" id="modal-cuenta" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-cuenta-titulo">
+      <div class="modal__header">
+        <h3 class="modal__title" id="modal-cuenta-titulo">Iniciar sesión</h3>
+        <button class="modal__close" data-close-modal aria-label="Cerrar">&times;</button>
+      </div>
+
+      <form id="form-login">
+        <div class="field">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" required>
+        </div>
+        <div class="field">
+          <label for="login-password">Contraseña</label>
+          <input type="password" id="login-password" required>
+        </div>
+        <p class="form-error" id="login-form-error" hidden></p>
+        <div class="modal__footer" style="justify-content: space-between; align-items: center;">
+          <button type="button" class="btn btn--ghost" id="btn-ir-registro">Crear cuenta</button>
+          <button type="submit" class="btn btn--primary">Ingresar</button>
+        </div>
+      </form>
+
+      <form id="form-registro" hidden>
+        <div class="field">
+          <label for="registro-nombre">Nombre</label>
+          <input type="text" id="registro-nombre" required>
+        </div>
+        <div class="field">
+          <label for="registro-email">Email</label>
+          <input type="email" id="registro-email" required>
+        </div>
+        <div class="field">
+          <label for="registro-password">Contraseña</label>
+          <input type="password" id="registro-password" minlength="6" required>
+        </div>
+        <p class="form-error" id="registro-form-error" hidden></p>
+        <div class="modal__footer" style="justify-content: space-between; align-items: center;">
+          <button type="button" class="btn btn--ghost" id="btn-ir-login">Ya tengo cuenta</button>
+          <button type="submit" class="btn btn--primary">Registrarme</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script type="module" src="js/main.js" defer></script>
+  <script type="module" src="js/dashboard.js" defer></script>
+  <script type="module" src="js/charts.js" defer></script>
+  <script type="module" src="js/utils.js" defer></script>
+  <script type="module" src="js/api.js" defer></script>
+  <script type="module" src="js/transaction.js" defer></script>
+  <script type="module" src="js/auth.js"></script> 
 </body>
 </html>

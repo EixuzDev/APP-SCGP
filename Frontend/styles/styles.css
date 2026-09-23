@@ -39,7 +39,7 @@ body {
   width: 64px;
   height: 64px;
   display: block;
-  margin-left: var(--sp-8);
+  margin-left: var(--sp-9);
 }
 
 .navbar__links {
@@ -72,4 +72,99 @@ body {
 
 .navbar__actions button{
     margin-right: var(--sp-8);
+}
+
+/* --- Secciones principales --- */
+main {
+  padding: var(--sp-6) 0 var(--sp-8);
+}
+
+.section {
+  margin-bottom: var(--sp-7);
+}
+
+.section__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--sp-4);
+  gap: var(--sp-4);
+}
+
+.section__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  margin: 0;
+}
+
+.section__hint {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  margin: 0;
+}
+
+
+/* --- Grilla de KPIs (resumen financiero) --- */
+.kpi-grid {
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(4, 1fr);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.kpi-grid > * {
+  border-right: var(--border-width) solid var(--border);
+}
+.kpi-grid > *:last-child {
+  border-right: none;
+}
+
+/* --- Layout de dos columnas: presupuesto/gráficos vs historial --- */
+.workspace {
+  display: grid;
+  grid-template-columns: 1.1fr 1.4fr;
+  gap: var(--sp-5);
+  align-items: start;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* --- Responsive --- */
+@media (max-width: 960px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .kpi-grid > *:nth-child(2) {
+    border-right: none;
+  }
+  .navbar__links {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  .kpi-grid > * {
+    border-right: none;
+    border-bottom: var(--border-width) solid var(--border);
+  }
+  .kpi-grid > *:last-child {
+    border-bottom: none;
+  }
+  .container {
+    padding: 0 var(--sp-4);
+  }
 }
