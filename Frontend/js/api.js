@@ -19,7 +19,7 @@ const API = (() => {
   const USE_MOCK_DATA = false;
 
   // Ajustar según dónde se despliegue el backend (ver backend/api/*.php).
-  const BASE_URL = 'http://localhost:8000/api';
+  const BASE_URL = 'http://localhost/APP SCGP/Backend/api';
 
   /* ------------------------------------------------------------
      Helper genérico de fetch con manejo de errores consistente.

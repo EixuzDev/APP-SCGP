@@ -14,10 +14,10 @@ class Database
     private static ?PDO $instancia = null;
 
     // --- Credenciales de conexión ---
-    private const HOST = 'localhost';
-    private const PUERTO = '3306';
+    private const HOST = '127.0.0.1';
+    private const PUERTO = '3000';
     private const NOMBRE_BD = 'scgp';
-    private const USUARIO = 'scgp';
+    private const USUARIO = 'root';
     private const PASSWORD = '1234'; // Completar en el servidor real.
 
     public static function conexion(): PDO
