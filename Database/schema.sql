@@ -18,11 +18,33 @@ USE scgp;
 CREATE TABLE IF NOT EXISTS users (
   id             INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   nombre         VARCHAR(120)      NOT NULL,
+  username       VARCHAR(50)       NOT NULL,
   email          VARCHAR(190)      NOT NULL,
   password_hash  VARCHAR(255)      NOT NULL,
   fecha_registro DATETIME          NOT NULL,
 
-  UNIQUE KEY uq_users_email (email)
+  UNIQUE KEY uq_users_email (email),
+  UNIQUE KEY uq_users_username (username)
+) ENGINE=InnoDB;
+
+-- ------------------------------------------------------------
+-- Códigos de recuperación de contraseña (por email o SMS).
+-- Cada solicitud genera una fila nueva; el código se guarda
+-- hasheado (nunca en texto plano) y expira a los 15 minutos.
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS password_resets (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id     INT UNSIGNED      NOT NULL,
+  codigo_hash VARCHAR(255)      NOT NULL,
+  expira_en   DATETIME          NOT NULL,
+  usado       TINYINT(1)        NOT NULL DEFAULT 0,
+  creado_en   TIMESTAMP         DEFAULT CURRENT_TIMESTAMP,
+
+  -- Sin FOREIGN KEY a propósito: es una tabla de códigos temporales
+  -- (expiran a los 15 minutos), no necesita integridad referencial
+  -- estricta a nivel de base — el índice alcanza para las consultas,
+  -- y así evitamos problemas de FK específicos de cada servidor MySQL.
+  INDEX idx_password_resets_user (user_id)
 ) ENGINE=InnoDB;
 
 -- ------------------------------------------------------------

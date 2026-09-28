@@ -14,6 +14,15 @@ body {
   font-size: var(--fs-base);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Esta regla se había perdido en algún punto: sin ella, .container
+   (usado en el nav y en <main>) no limita el ancho de la página. */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--sp-5);
 }
 
 /* --- Barra de navegación --- */

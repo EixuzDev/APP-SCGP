@@ -1,4 +1,4 @@
- /* ============================================================
+/* ============================================================
    COMPONENTS.CSS
    Piezas reutilizables: botones, tarjetas KPI, barras de
    presupuesto, filas de transacción, modal, formularios.
@@ -380,6 +380,62 @@
   font-size: var(--fs-xs);
   margin-top: -8px;
   margin-bottom: var(--sp-3);
+}
+
+/* --- Perfil de usuario --- */
+.perfil-datos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+
+.perfil-dato {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding-bottom: var(--sp-2);
+  border-bottom: var(--border-width) solid var(--border);
+  font-size: var(--fs-sm);
+}
+
+.perfil-dato:last-child {
+  border-bottom: none;
+}
+
+.perfil-dato__label {
+  color: var(--text-secondary);
+}
+
+.perfil-dato__valor {
+  font-weight: 600;
+  text-align: right;
+}
+
+/* --- Link tipo texto (ej: "¿Olvidaste tu contraseña?") --- */
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--primary);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: -8px;
+  margin-bottom: var(--sp-3);
+  display: inline-block;
+}
+
+/* --- Botón "Iniciar sesión" / "Registrarse" cuando no hay sesión
+     (reemplaza temporalmente al avatar circular) --- */
+.avatar--etiqueta {
+  width: auto;
+  height: auto;
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-4);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 /* --- Utilidades de accesibilidad --- */

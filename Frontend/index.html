@@ -228,7 +228,80 @@
       </form>
     </div>
   </div>
+
+  <!-- Vista: perfil del usuario ya logueado -->
+      <div id="vista-perfil" hidden>
+        <div class="perfil-datos">
+          <div class="perfil-dato">
+            <span class="perfil-dato__label">Nombre</span>
+            <span class="perfil-dato__valor" id="perfil-nombre">—</span>
+          </div>
+          <div class="perfil-dato">
+            <span class="perfil-dato__label">Usuario</span>
+            <span class="perfil-dato__valor" id="perfil-username">—</span>
+          </div>
+          <div class="perfil-dato">
+            <span class="perfil-dato__label">Email</span>
+            <span class="perfil-dato__valor" id="perfil-email">—</span>
+          </div>
+          <div class="perfil-dato">
+            <span class="perfil-dato__label">Miembro desde</span>
+            <span class="perfil-dato__valor" id="perfil-fecha-registro">—</span>
+          </div>
+        </div>
+ 
+        <button type="button" class="btn btn--ghost" id="btn-cambiar-tema" style="width:100%; justify-content:center; margin-top: var(--sp-4);">
+          <span id="btn-cambiar-tema-texto">Cambiar a modo oscuro</span>
+        </button>
+ 
+        <div class="modal__footer" style="justify-content: center;">
+          <button type="button" class="btn btn--primary" id="btn-cerrar-sesion" style="width:100%; justify-content:center;">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <!-- Vista: pedir código de recuperación (paso 1) -->
+      <form id="form-recuperar-solicitud" hidden>
+        <div class="type-toggle" role="radiogroup" aria-label="Método de recuperación">
+          <button type="button" data-metodo="email" aria-pressed="true">Por email</button>
+          <button type="button" data-metodo="sms" aria-pressed="false">Por SMS</button>
+        </div>
+        <input type="hidden" id="recuperar-metodo" value="email">
+ 
+        <div class="field" style="margin-top: var(--sp-4);">
+          <label for="recuperar-contacto" id="recuperar-contacto-label">Tu email</label>
+          <input type="text" id="recuperar-contacto" required>
+        </div>
+ 
+        <p class="form-error" id="recuperar-solicitud-error" hidden></p>
+        <div class="modal__footer" style="justify-content: space-between; align-items: center;">
+          <button type="button" class="btn btn--ghost" id="btn-recuperar-volver">Volver</button>
+          <button type="submit" class="btn btn--primary">Enviar código</button>
+        </div>
+      </form>
+
+      <!-- Vista: confirmar código + nueva contraseña (paso 2) -->
+      <form id="form-recuperar-confirmar" hidden>
+        <p class="section__hint" id="recuperar-confirmar-hint" style="margin-bottom: var(--sp-4);"></p>
+ 
+        <div class="field">
+          <label for="recuperar-codigo">Código de 6 dígitos</label>
+          <input type="text" id="recuperar-codigo" inputmode="numeric" maxlength="6" required>
+        </div>
+        <div class="field">
+          <label for="recuperar-nueva-password">Nueva contraseña</label>
+          <input type="password" id="recuperar-nueva-password" minlength="6" required>
+        </div>
+ 
+        <p class="form-error" id="recuperar-confirmar-error" hidden></p>
+        <div class="modal__footer" style="justify-content: space-between; align-items: center;">
+          <button type="button" class="btn btn--ghost" id="btn-recuperar-reintentar">Pedir otro código</button>
+          <button type="submit" class="btn btn--primary">Restablecer contraseña</button>
+        </div>
+      </form>
+    </div>
+  </div>
   <script src="js/main.js"></script>
+  <script src="js/theme.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/charts.js"></script>
   <script src="js/utils.js"></script>

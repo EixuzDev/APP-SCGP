@@ -19,7 +19,7 @@ const API = (() => {
   const USE_MOCK_DATA = false;
 
   // Ajustar según dónde se despliegue el backend (ver backend/api/*.php).
-  const BASE_URL = 'http://localhost/APP SCGP/Backend/api';
+  const BASE_URL = 'http://localhost/APP%20SCGP/Backend/api';
 
   /* ------------------------------------------------------------
      Helper genérico de fetch con manejo de errores consistente.
@@ -60,7 +60,13 @@ const API = (() => {
     };
 
     return {
-      usuario: { id: 1, nombre: 'Cuenta Demo', email: 'demo@finora.app' },
+      usuario: {
+        id: 1,
+        nombre: 'Cuenta Demo',
+        username: 'cuenta.demo',
+        email: 'demo@finora.app',
+        fecha_registro: fecha(90) + ' 00:00:00',
+      },
       categorias: [
         { id: 1, nombre: 'Sueldo', tipo: 'ingreso' },
         { id: 2, nombre: 'Freelance', tipo: 'ingreso' },
@@ -109,16 +115,22 @@ const API = (() => {
     });
   }
 
-  async function registrar(nombre, email, password) {
+  async function registrar(nombre, username, email, password) {
     if (USE_MOCK_DATA) {
       const store = getMockStore();
-      store.usuario = { id: 1, nombre, email };
+      store.usuario = {
+        id: 1,
+        nombre,
+        username,
+        email,
+        fecha_registro: new Date().toISOString().slice(0, 10) + ' 00:00:00',
+      };
       saveMockStore(store);
       return store.usuario;
     }
     return request('/auth.php?action=register', {
       method: 'POST',
-      body: JSON.stringify({ nombre, email, password }),
+      body: JSON.stringify({ nombre, username, email, password }),
     });
   }
 
@@ -132,6 +144,31 @@ const API = (() => {
   async function cerrarSesion() {
     if (USE_MOCK_DATA) return true;
     return request('/auth.php?action=logout', { method: 'POST' });
+  }
+
+  /* ------------------------------------------------------------
+     RECUPERACIÓN DE CONTRASEÑA
+     ------------------------------------------------------------ */
+  async function solicitarRecuperacion(metodo, contacto) {
+    if (USE_MOCK_DATA) {
+      // En modo demo generamos un código fijo, solo para poder
+      // probar el flujo completo sin backend.
+      return { ok: true, codigo_demo: '123456' };
+    }
+    return request('/auth.php?action=solicitar-recuperacion', {
+      method: 'POST',
+      body: JSON.stringify({ metodo, contacto }),
+    });
+  }
+
+  async function restablecerPassword(metodo, contacto, codigo, nuevaPassword) {
+    if (USE_MOCK_DATA) {
+      return { ok: codigo === '123456' };
+    }
+    return request('/auth.php?action=restablecer-password', {
+      method: 'POST',
+      body: JSON.stringify({ metodo, contacto, codigo, nueva_password: nuevaPassword }),
+    });
   }
 
   /* ------------------------------------------------------------
@@ -227,6 +264,8 @@ const API = (() => {
     crearTransaccion,
     eliminarTransaccion,
     obtenerResumenMensual,
+    solicitarRecuperacion,
+    restablecerPassword,
     USE_MOCK_DATA,
   };
 })();

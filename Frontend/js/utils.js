@@ -5,7 +5,7 @@
    ============================================================ */
 
 const Utils = (() => {
-  const formatoMoneda = new Intl.NumberFormat('es-AR', {
+  const formatoMoneda = new Intl.NumberFormat('es-VE', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
@@ -25,5 +25,11 @@ const Utils = (() => {
     return fecha.toLocaleDateString('es-AR', { month: 'short' });
   }
 
-  return { formatMoney, formatDate, nombreMes };
+  function formatFechaRegistro(fechaHoraSql) {
+    // fechaHoraSql viene como "YYYY-MM-DD HH:MM:SS" (DATETIME de MySQL).
+    if (!fechaHoraSql) return '—';
+    return formatDate(fechaHoraSql.slice(0, 10));
+  }
+
+  return { formatMoney, formatDate, nombreMes, formatFechaRegistro };
 })();

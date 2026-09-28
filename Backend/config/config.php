@@ -12,9 +12,13 @@ session_start();
 // --- Headers comunes a toda la API ---
 header('Content-Type: application/json; charset=utf-8');
 
-// CORS para desarrollo local (front-end y backend en distinto puerto).
-// En producción, reemplazar '*' por el dominio real del front-end.
-header('Access-Control-Allow-Origin: *');
+// CORS para desarrollo local. Si front-end y backend corren en el
+// mismo origen (por ejemplo, ambos servidos por el mismo Apache/XAMPP),
+// esto no afecta nada. Si algún día corren en puertos distintos, hace
+// falta reflejar el origen real en vez de '*', porque los navegadores
+// no permiten '*' junto con Allow-Credentials: true.
+$origenPermitido = $_SERVER['HTTP_ORIGIN'] ?? '*';
+header("Access-Control-Allow-Origin: $origenPermitido");
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
