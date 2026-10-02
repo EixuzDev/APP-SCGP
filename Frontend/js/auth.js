@@ -43,13 +43,11 @@ const Auth = (() => {
   const recuperarSolicitudError = document.getElementById('recuperar-solicitud-error');
   const recuperarConfirmarError = document.getElementById('recuperar-confirmar-error');
 
-  const inputRecuperarMetodo = document.getElementById('recuperar-metodo');
-  const inputRecuperarContacto = document.getElementById('recuperar-contacto');
-  const labelRecuperarContacto = document.getElementById('recuperar-contacto-label');
+  const inputRecuperarEmail = document.getElementById('recuperar-contacto');
   const hintRecuperarConfirmar = document.getElementById('recuperar-confirmar-hint');
 
-  // Guardamos método + contacto entre el paso 1 y el paso 2 de recuperación.
-  let recuperacionEnCurso = { metodo: 'email', contacto: '' };
+  // Guardamos el email entre el paso 1 y el paso 2 de recuperación.
+  let emailRecuperacionEnCurso = '';
 
   const VISTAS = {
     login: formLogin,
@@ -143,7 +141,7 @@ const Auth = (() => {
 
   function actualizarTextoTema() {
     btnCambiarTemaTexto.textContent =
-      Theme.actual() === 'oscuro' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+      Theme.actual() === 'oscuro' ? '☀️' : '🌙';
   }
 
   /* ------------------------------------------------------------
@@ -211,43 +209,25 @@ const Auth = (() => {
   }
 
   /* ------------------------------------------------------------
-     Recuperación de contraseña (2 pasos, 2 métodos)
+     Recuperación de contraseña (2 pasos, por email)
      ------------------------------------------------------------ */
-  function bindToggleMetodoRecuperacion() {
-    const botones = formRecuperarSolicitud.querySelectorAll('.type-toggle button');
-    botones.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        botones.forEach((b) => b.setAttribute('aria-pressed', 'false'));
-        btn.setAttribute('aria-pressed', 'true');
-        const metodo = btn.dataset.metodo;
-        inputRecuperarMetodo.value = metodo;
-        labelRecuperarContacto.textContent = metodo ===  'Tu email';
-        inputRecuperarContacto.type = metodo === 'email';
-        inputRecuperarContacto.placeholder = metodo === 'email';
-      });
-    });
-  }
-
   async function manejarSolicitudRecuperacion(e) {
     e.preventDefault();
     recuperarSolicitudError.hidden = true;
 
-    const metodo = inputRecuperarMetodo.value;
-    const contacto = inputRecuperarContacto.value.trim();
+    const email = inputRecuperarEmail.value.trim();
 
     try {
-      const respuesta = await API.solicitarRecuperacion(metodo, contacto);
-      recuperacionEnCurso = { metodo, contacto };
+      const respuesta = await API.solicitarRecuperacion(email);
+      emailRecuperacionEnCurso = email;
 
-      // MODO DEMO: como todavía no hay email/SMS real conectado, el
-      // backend devuelve el código en la respuesta para poder probar
-      // el flujo. En producción esto no debería pasar — ver el TODO
-      // en Backend/api/auth.php (manejarSolicitarRecuperacion).
+      // MODO DEMO: como todavía no hay envío real de emails conectado,
+      // el backend devuelve el código en la respuesta para poder
+      // probar el flujo. En producción esto no debería pasar — ver el
+      // TODO en Backend/api/auth.php (manejarSolicitarRecuperacion).
       hintRecuperarConfirmar.textContent = respuesta.codigo_demo
-        ? `Modo demo: tu código es ${respuesta.codigo_demo} (todavía no hay envío real de ${
-            metodo === 'email' ? 'emails' : 'SMS'
-          } configurado).`
-        : `Te enviamos un código por ${metodo === 'email' ? 'email' : 'SMS'} a ${contacto}.`;
+        ? `Modo demo: tu código es ${respuesta.codigo_demo} (todavía no hay envío real de emails configurado).`
+        : `Te enviamos un código por email a ${email}.`;
 
       formRecuperarSolicitud.reset();
       mostrarVista('recuperar-confirmar');
@@ -265,12 +245,7 @@ const Auth = (() => {
     const nuevaPassword = document.getElementById('recuperar-nueva-password').value;
 
     try {
-      const respuesta = await API.restablecerPassword(
-        recuperacionEnCurso.metodo,
-        recuperacionEnCurso.contacto,
-        codigo,
-        nuevaPassword
-      );
+      const respuesta = await API.restablecerPassword(emailRecuperacionEnCurso, codigo, nuevaPassword);
       if (!respuesta.ok) {
         throw new Error('El código es inválido o ya venció.');
       }
@@ -308,8 +283,6 @@ const Auth = (() => {
     formRegistro.addEventListener('submit', manejarRegistro);
     formRecuperarSolicitud.addEventListener('submit', manejarSolicitudRecuperacion);
     formRecuperarConfirmar.addEventListener('submit', manejarConfirmarRecuperacion);
-
-    bindToggleMetodoRecuperacion();
   }
 
   function init() {

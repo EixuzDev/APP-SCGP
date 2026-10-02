@@ -9,7 +9,9 @@
     <title>Aplicacion de Control de Gastos Personales</title>
      <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-    <link rel="icon" href="icon.png">
+    <link rel="icon" href="assets/icon.png">
+    <!-- Chart.js para los gráficos del dashboard -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 </head>
 <body>
    <!-- ================================
@@ -190,7 +192,6 @@
         <h3 class="modal__title" id="modal-cuenta-titulo">Iniciar sesión</h3>
         <button class="modal__close" data-close-modal aria-label="Cerrar">&times;</button>
       </div>
-
       <form id="form-login">
         <div class="field">
           <label for="login-email">Email</label>
@@ -201,6 +202,7 @@
           <input type="password" id="login-password" required>
         </div>
         <p class="form-error" id="login-form-error" hidden></p>
+        <button type="button" class="link-button" id="btn-ir-recuperar">¿Olvidaste tu contraseña?</button>
         <div class="modal__footer" style="justify-content: space-between; align-items: center;">
           <button type="button" class="btn btn--ghost" id="btn-ir-registro">Crear cuenta</button>
           <button type="submit" class="btn btn--primary">Ingresar</button>
@@ -211,6 +213,10 @@
         <div class="field">
           <label for="registro-nombre">Nombre</label>
           <input type="text" id="registro-nombre" required>
+        </div>
+        <div class="field">
+          <label for="registro-username">Nombre de usuario</label>
+          <input type="text" id="registro-username" placeholder="Ej: juan.perez" minlength="3" required>
         </div>
         <div class="field">
           <label for="registro-email">Email</label>
@@ -226,10 +232,8 @@
           <button type="submit" class="btn btn--primary">Registrarme</button>
         </div>
       </form>
-    </div>
-  </div>
 
-  <!-- Vista: perfil del usuario ya logueado -->
+      <!-- Vista: perfil del usuario ya logueado -->
       <div id="vista-perfil" hidden>
         <div class="perfil-datos">
           <div class="perfil-dato">
@@ -261,17 +265,15 @@
 
       <!-- Vista: pedir código de recuperación (paso 1) -->
       <form id="form-recuperar-solicitud" hidden>
-        <div class="type-toggle" role="radiogroup" aria-label="Método de recuperación">
-          <button type="button" data-metodo="email" aria-pressed="true">Por email</button>
-          <button type="button" data-metodo="sms" aria-pressed="false">Por SMS</button>
+        <p class="section__hint" style="margin-bottom: var(--sp-4);">
+          Ingresá el email de tu cuenta y te enviamos un código para restablecer tu contraseña.
+        </p>
+
+        <div class="field">
+          <label for="recuperar-contacto">Tu email</label>
+          <input type="email" id="recuperar-contacto" required>
         </div>
-        <input type="hidden" id="recuperar-metodo" value="email">
- 
-        <div class="field" style="margin-top: var(--sp-4);">
-          <label for="recuperar-contacto" id="recuperar-contacto-label">Tu email</label>
-          <input type="text" id="recuperar-contacto" required>
-        </div>
- 
+
         <p class="form-error" id="recuperar-solicitud-error" hidden></p>
         <div class="modal__footer" style="justify-content: space-between; align-items: center;">
           <button type="button" class="btn btn--ghost" id="btn-recuperar-volver">Volver</button>

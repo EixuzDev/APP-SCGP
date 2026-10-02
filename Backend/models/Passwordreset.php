@@ -1,9 +1,9 @@
 <?php
 /**
  * PasswordReset.php
- * Maneja los códigos de recuperación de contraseña (por email o
- * por SMS). El código nunca se guarda en texto plano — se guarda
- * hasheado con password_hash(), igual que las contraseñas.
+ * Maneja los códigos de recuperación de contraseña (por email). El
+ * código nunca se guarda en texto plano — se guarda hasheado con
+ * password_hash(), igual que las contraseñas.
  */
 
 class PasswordReset
@@ -23,7 +23,7 @@ class PasswordReset
      * Devuelve el código EN TEXTO PLANO — es la única vez que existe
      * así, para poder enviarlo (o, en modo demo, mostrarlo).
      */
-    public function generarCodigo(int $usuarioId, string $metodo): string
+    public function generarCodigo(int $usuarioId): string
     {
         // Invalidamos cualquier código anterior todavía vigente, para
         // que no queden códigos viejos utilizables en simultáneo.
@@ -37,13 +37,12 @@ class PasswordReset
         $expira = (new DateTime())->modify('+' . self::MINUTOS_VALIDEZ . ' minutes')->format('Y-m-d H:i:s');
 
         $stmt = $this->db->prepare(
-            'INSERT INTO password_resets (user_id, codigo_hash, metodo, expira_en)
-             VALUES (:user_id, :hash, :metodo, :expira)'
+            'INSERT INTO password_resets (user_id, codigo_hash, expira_en)
+             VALUES (:user_id, :hash, :expira)'
         );
         $stmt->execute([
             'user_id' => $usuarioId,
             'hash' => $hash,
-            'metodo' => $metodo,
             'expira' => $expira,
         ]);
 

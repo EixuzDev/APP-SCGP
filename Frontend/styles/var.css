@@ -76,7 +76,7 @@
    mantienen iguales en los dos modos.
    ------------------------------------------------------------ */
 :root[data-theme="oscuro"] {
-  --bg: #12181F;
+  --bg: #12121F;
   --surface: #1B2430;
   --text: #EAF0F6;
   --text-secondary: #9BA9BA;
@@ -85,12 +85,12 @@
   --expense: #E2695D;
   --budget: #E6BB4C;
   --border: #2B3542;
- 
+
   --primary-hover: #7BA3F2;
   --income-soft: #1E3A2E;
   --expense-soft: #3A2420;
   --budget-soft: #3A2F18;
   --surface-hover: #232E3B;
- 
+
   --shadow-float: 0 12px 32px rgba(0, 0, 0, 0.45);
 }

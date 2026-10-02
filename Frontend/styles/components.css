@@ -1,4 +1,4 @@
-/* ============================================================
+ /* ============================================================
    COMPONENTS.CSS
    Piezas reutilizables: botones, tarjetas KPI, barras de
    presupuesto, filas de transacción, modal, formularios.
@@ -61,6 +61,7 @@
   font-weight: bold;
   font-size: var(--fs-sm);
   border: 1px solid var(--text);
+  background-color: var(--surface);
   cursor: pointer;
 }
 
@@ -366,6 +367,14 @@
   border-color: var(--expense);
   color: var(--expense);
   background: var(--expense-soft);
+}
+
+/* Toggle de método de recuperación (email/SMS): no usa data-type,
+   así que su estado activo se resuelve con el color primario. */
+.type-toggle button[aria-pressed="true"]:not([data-type]) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--surface-hover);
 }
 
 .modal__footer {

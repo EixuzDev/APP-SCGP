@@ -149,7 +149,7 @@ const API = (() => {
   /* ------------------------------------------------------------
      RECUPERACIÓN DE CONTRASEÑA
      ------------------------------------------------------------ */
-  async function solicitarRecuperacion(metodo, contacto) {
+  async function solicitarRecuperacion(email) {
     if (USE_MOCK_DATA) {
       // En modo demo generamos un código fijo, solo para poder
       // probar el flujo completo sin backend.
@@ -157,17 +157,17 @@ const API = (() => {
     }
     return request('/auth.php?action=solicitar-recuperacion', {
       method: 'POST',
-      body: JSON.stringify({ metodo, contacto }),
+      body: JSON.stringify({ email }),
     });
   }
 
-  async function restablecerPassword(metodo, contacto, codigo, nuevaPassword) {
+  async function restablecerPassword(email, codigo, nuevaPassword) {
     if (USE_MOCK_DATA) {
       return { ok: codigo === '123456' };
     }
     return request('/auth.php?action=restablecer-password', {
       method: 'POST',
-      body: JSON.stringify({ metodo, contacto, codigo, nueva_password: nuevaPassword }),
+      body: JSON.stringify({ email, codigo, nueva_password: nuevaPassword }),
     });
   }
 

@@ -22,7 +22,7 @@ const Utils = (() => {
   }
 
   function nombreMes(fecha) {
-    return fecha.toLocaleDateString('es-AR', { month: 'short' });
+    return fecha.toLocaleDateString('es-VE', { month: 'short' });
   }
 
   function formatFechaRegistro(fechaHoraSql) {
