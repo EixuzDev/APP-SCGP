@@ -35,10 +35,18 @@
     bindCierreDeModales();
     Auth.init();
     await Auth.cargarSesion();
-
+    
+    
+    try{
     await Dashboard.actualizar();
-    await Transactions.init();
-
+    }catch(err){
+      console.warn('No se pudo cargar el dashboard (¿hay sesión activa?):', err.message);
+    }
+     try {
+      await Transactions.init();
+    } catch (err) {
+      console.warn('No se pudo cargar el historial de transacciones:', err.message);
+    }
     // Si el usuario inicia sesión o se registra durante el uso,
     // recargamos los datos por si el backend real trae información
     // distinta para esa cuenta.
