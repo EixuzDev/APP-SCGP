@@ -51,8 +51,12 @@
     // recargamos los datos por si el backend real trae información
     // distinta para esa cuenta.
     document.addEventListener('sesion:cambio', async () => {
-      await Dashboard.actualizar();
-      await Transactions.pintarHistorial();
+      try {
+        await Dashboard.actualizar();
+        await Transactions.pintarHistorial();
+      } catch (err) {
+        console.warn('No se pudo refrescar los datos tras el cambio de sesión:', err.message);
+      }
     });
   }
 

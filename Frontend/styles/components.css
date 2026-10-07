@@ -1,4 +1,4 @@
- /* ============================================================
+/* ============================================================
    COMPONENTS.CSS
    Piezas reutilizables: botones, tarjetas KPI, barras de
    presupuesto, filas de transacción, modal, formularios.
@@ -367,6 +367,20 @@
   border-color: var(--expense);
   color: var(--expense);
   background: var(--expense-soft);
+}
+
+/* --- Mini-formulario para crear una categoría nueva, dentro del
+     modal de "Nueva transacción" --- */
+.categoria-nueva {
+  border: var(--border-width) dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-3);
+  margin: calc(var(--sp-3) * -1) 0 var(--sp-4);
+  background: var(--bg);
+}
+
+.categoria-nueva .field:last-of-type {
+  margin-bottom: var(--sp-3);
 }
 
 /* Toggle de método de recuperación (email/SMS): no usa data-type,

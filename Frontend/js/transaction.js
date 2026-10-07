@@ -22,6 +22,15 @@ const Transactions = (() => {
   const inputTipoOculto = document.getElementById('tx-tipo');
   const formError = document.getElementById('tx-form-error');
 
+  const panelCategoriaNueva = document.getElementById('tx-categoria-nueva');
+  const inputCategoriaNuevaNombre = document.getElementById('tx-categoria-nueva-nombre');
+  const inputCategoriaNuevaPresupuesto = document.getElementById('tx-categoria-nueva-presupuesto');
+  const wrapCategoriaNuevaPresupuesto = document.getElementById('tx-categoria-nueva-presupuesto-wrap');
+  const errorCategoriaNueva = document.getElementById('tx-categoria-nueva-error');
+  const btnCrearCategoria = document.getElementById('btn-crear-categoria');
+
+  const VALOR_NUEVA_CATEGORIA = '__nueva__';
+
   /* ------------------------------------------------------------
      Íconos simples (flecha arriba/abajo) para diferenciar
      ingresos y gastos en cada fila del historial.
@@ -89,9 +98,76 @@ const Transactions = (() => {
 
   function poblarSelectFormulario(tipo) {
     const categorias = Dashboard.getCategorias().filter((c) => c.tipo === tipo);
-    selectCategoriaForm.innerHTML = categorias
-      .map((c) => `<option value="${c.id}">${c.nombre}</option>`)
-      .join('');
+    selectCategoriaForm.innerHTML =
+      categorias.map((c) => `<option value="${c.id}">${c.nombre}</option>`).join('') +
+      `<option value="${VALOR_NUEVA_CATEGORIA}">+ Agregar categoría nueva…</option>`;
+    ocultarFormularioNuevaCategoria();
+  }
+
+  /* ------------------------------------------------------------
+     Mini-formulario para crear una categoría nueva sin salir del
+     modal de "Nueva transacción".
+     ------------------------------------------------------------ */
+  function mostrarFormularioNuevaCategoria() {
+    panelCategoriaNueva.hidden = false;
+    // El presupuesto solo tiene sentido para categorías de gasto
+    // (ver Category::crear en el backend).
+    wrapCategoriaNuevaPresupuesto.hidden = inputTipoOculto.value !== 'gasto';
+    inputCategoriaNuevaNombre.focus();
+  }
+
+  function ocultarFormularioNuevaCategoria() {
+    panelCategoriaNueva.hidden = true;
+    errorCategoriaNueva.hidden = true;
+    inputCategoriaNuevaNombre.value = '';
+    inputCategoriaNuevaPresupuesto.value = '';
+  }
+
+  function manejarCambioSelectCategoria() {
+    if (selectCategoriaForm.value === VALOR_NUEVA_CATEGORIA) {
+      mostrarFormularioNuevaCategoria();
+    } else {
+      ocultarFormularioNuevaCategoria();
+    }
+  }
+
+  async function manejarCrearCategoria() {
+    errorCategoriaNueva.hidden = true;
+
+    const nombre = inputCategoriaNuevaNombre.value.trim();
+    const presupuestoRaw = inputCategoriaNuevaPresupuesto.value;
+    const presupuesto = presupuestoRaw ? Number(presupuestoRaw) : null;
+
+    if (!nombre) {
+      errorCategoriaNueva.textContent = 'Ponele un nombre a la categoría.';
+      errorCategoriaNueva.hidden = false;
+      return;
+    }
+
+    let nueva;
+    try {
+      nueva = await API.crearCategoria(nombre, inputTipoOculto.value, presupuesto);
+    } catch (err) {
+      errorCategoriaNueva.textContent = err.message || 'No se pudo crear la categoría.';
+      errorCategoriaNueva.hidden = false;
+      return;
+    }
+
+    // La categoría ya quedó creada en la base en este punto. Lo que
+    // sigue es solo refrescar la UI — si algo de esto falla (por
+    // ejemplo, un gráfico), no debe parecer que la categoría no se
+    // creó, así que va en su propio try/catch, aparte.
+    try {
+      // Refrescamos la lista de categorías que tiene Dashboard en
+      // memoria, para que la nueva quede disponible en todos los
+      // selects (este formulario, el filtro del historial, etc.).
+      await Dashboard.actualizar();
+    } catch (err) {
+      console.warn('La categoría se creó, pero no se pudo refrescar el dashboard:', err.message);
+    }
+    poblarSelectFormulario(inputTipoOculto.value);
+    poblarSelectFiltroCategoria();
+    selectCategoriaForm.value = String(nueva.id);
   }
 
   /* ------------------------------------------------------------
@@ -107,6 +183,7 @@ const Transactions = (() => {
     modal.hidden = true;
     form.reset();
     formError.hidden = true;
+    ocultarFormularioNuevaCategoria();
   }
 
   function bindToggleTipo() {
@@ -133,6 +210,11 @@ const Transactions = (() => {
       fecha: document.getElementById('tx-fecha').value,
     };
 
+    if (selectCategoriaForm.value === VALOR_NUEVA_CATEGORIA) {
+      formError.textContent = 'Primero creá la categoría nueva con el botón de abajo, o elegí una existente.';
+      formError.hidden = false;
+      return;
+    }
     if (!datos.categoria_id || !datos.monto || !datos.descripcion || !datos.fecha) {
       formError.textContent = 'Completá todos los campos.';
       formError.hidden = false;
@@ -141,13 +223,26 @@ const Transactions = (() => {
 
     try {
       await API.crearTransaccion(datos);
-      cerrarModal();
-      await Dashboard.actualizar();
-      poblarSelectFiltroCategoria();
-      await pintarHistorial();
     } catch (err) {
       formError.textContent = err.message || 'No se pudo guardar la transacción.';
       formError.hidden = false;
+      return;
+    }
+
+    // La transacción ya se guardó en este punto. Cerramos el modal y
+    // refrescamos la UI aparte, para que un fallo acá (ej. un
+    // gráfico) no dé la falsa impresión de que no se guardó nada.
+    cerrarModal();
+    try {
+      await Dashboard.actualizar();
+    } catch (err) {
+      console.warn('La transacción se guardó, pero no se pudo refrescar el dashboard:', err.message);
+    }
+    poblarSelectFiltroCategoria();
+    try {
+      await pintarHistorial();
+    } catch (err) {
+      console.warn('La transacción se guardó, pero no se pudo refrescar el historial:', err.message);
     }
   }
 
@@ -155,9 +250,23 @@ const Transactions = (() => {
     const id = e.target.dataset.borrar;
     if (!id) return;
 
-    await API.eliminarTransaccion(Number(id));
-    await Dashboard.actualizar();
-    await pintarHistorial();
+    try {
+      await API.eliminarTransaccion(Number(id));
+    } catch (err) {
+      console.warn('No se pudo eliminar la transacción:', err.message);
+      return;
+    }
+
+    try {
+      await Dashboard.actualizar();
+    } catch (err) {
+      console.warn('La transacción se eliminó, pero no se pudo refrescar el dashboard:', err.message);
+    }
+    try {
+      await pintarHistorial();
+    } catch (err) {
+      console.warn('La transacción se eliminó, pero no se pudo refrescar el historial:', err.message);
+    }
   }
 
   function bindEventos() {
@@ -168,6 +277,9 @@ const Transactions = (() => {
     [filtroTipo, filtroCategoria, filtroDesde, filtroHasta].forEach((el) =>
       el.addEventListener('change', pintarHistorial)
     );
+
+    selectCategoriaForm.addEventListener('change', manejarCambioSelectCategoria);
+    btnCrearCategoria.addEventListener('click', manejarCrearCategoria);
 
     bindToggleTipo();
   }

@@ -179,6 +179,21 @@ const API = (() => {
     return request('/categories.php');
   }
 
+  async function crearCategoria(nombre, tipo, presupuesto) {
+    if (USE_MOCK_DATA) {
+      const store = getMockStore();
+      const nuevoId = Math.max(0, ...store.categorias.map((c) => c.id)) + 1;
+      const nueva = { id: nuevoId, nombre, tipo, presupuesto: presupuesto || undefined };
+      store.categorias.push(nueva);
+      saveMockStore(store);
+      return nueva;
+    }
+    return request('/categories.php', {
+      method: 'POST',
+      body: JSON.stringify({ nombre, tipo, presupuesto }),
+    });
+  }
+
   /* ------------------------------------------------------------
      TRANSACCIONES
      ------------------------------------------------------------ */
@@ -200,7 +215,15 @@ const API = (() => {
       return [...lista].sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
     }
 
-    const params = new URLSearchParams(filtros).toString();
+    // OJO: new URLSearchParams(obj) convierte cualquier valor
+    // `undefined` en el STRING literal "undefined" (ej: "desde=undefined"),
+    // no lo omite. Si eso llega al backend, el filtro de fecha se
+    // aplica con un valor inválido y la consulta no devuelve nada.
+    // Por eso filtramos acá los valores vacíos antes de armar la URL.
+    const filtrosLimpios = Object.fromEntries(
+      Object.entries(filtros).filter(([, valor]) => valor !== undefined && valor !== '')
+    );
+    const params = new URLSearchParams(filtrosLimpios).toString();
     return request(`/transactions.php?${params}`);
   }
 
@@ -260,6 +283,7 @@ const API = (() => {
     obtenerSesion,
     cerrarSesion,
     obtenerCategorias,
+    crearCategoria,
     obtenerTransacciones,
     crearTransaccion,
     eliminarTransaccion,
