@@ -38,7 +38,7 @@ const Dashboard = (() => {
     const filas = categoriasGasto.map((cat) => {
       const gastado = transacciones
         .filter((t) => t.tipo === 'gasto' && t.categoria_id === cat.id && t.fecha >= inicioMesStr)
-        .reduce((s, t) => s + t.monto, 0);
+        .reduce((s, t) => s + Number(t.monto), 0);
 
       const porcentaje = Math.min(100, Math.round((gastado / cat.presupuesto) * 100));
       let claseBarra = '';
@@ -73,7 +73,7 @@ const Dashboard = (() => {
 
     const porCategoria = {};
     gastosDelMes.forEach((t) => {
-      porCategoria[t.categoria_id] = (porCategoria[t.categoria_id] || 0) + t.monto;
+      porCategoria[t.categoria_id] = (porCategoria[t.categoria_id] || 0) + Number(t.monto);
     });
 
     const datos = Object.entries(porCategoria).map(([catId, total]) => {
@@ -100,8 +100,8 @@ const Dashboard = (() => {
       const finStr = finFecha.toISOString().slice(0, 10);
 
       const delMes = transacciones.filter((t) => t.fecha >= inicioStr && t.fecha < finStr);
-      const ingresos = delMes.filter((t) => t.tipo === 'ingreso').reduce((s, t) => s + t.monto, 0);
-      const gastos = delMes.filter((t) => t.tipo === 'gasto').reduce((s, t) => s + t.monto, 0);
+      const ingresos = delMes.filter((t) => t.tipo === 'ingreso').reduce((s, t) => s + Number(t.monto), 0);
+      const gastos = delMes.filter((t) => t.tipo === 'gasto').reduce((s, t) => s + Number(t.monto), 0);
 
       meses.push({ etiqueta: Utils.nombreMes(fecha), ingresos, gastos });
     }
@@ -132,6 +132,17 @@ const Dashboard = (() => {
   function getCategorias() {
     return categorias;
   }
+
+  // Los gráficos usan colores leídos del tema; si el usuario cambia
+  // entre claro y oscuro, los redibujamos con los datos que ya tenemos.
+  document.addEventListener('tema:cambio', () => {
+    try {
+      pintarDistribucionGastos();
+      pintarEvolucionMensual();
+    } catch (err) {
+      console.warn('No se pudieron redibujar los gráficos tras el cambio de tema:', err.message);
+    }
+  });
 
   return { actualizar, getCategorias };
 })();

@@ -176,7 +176,31 @@ const API = (() => {
      ------------------------------------------------------------ */
   async function obtenerCategorias() {
     if (USE_MOCK_DATA) return getMockStore().categorias;
-    return request('/categories.php');
+    const lista = await request('/categories.php');
+    // Aunque el backend ya manda números, normalizamos acá también: si
+    // algún día llega un monto como texto ("400.00"), las cuentas del
+    // dashboard no se rompen (en JS, "0" + "400.00" CONCATENA).
+    return lista.map((c) => ({
+      ...c,
+      id: Number(c.id),
+      presupuesto: c.presupuesto === null || c.presupuesto === undefined ? null : Number(c.presupuesto),
+    }));
+  }
+
+  async function eliminarCategoria(id) {
+    if (USE_MOCK_DATA) {
+      const store = getMockStore();
+      const enUso = store.transacciones.filter((t) => t.categoria_id === id).length;
+      if (enUso > 0) {
+        throw new Error(
+          `No se puede eliminar: la categoría tiene ${enUso} transacción(es) asociada(s). Eliminá o cambiá esas transacciones primero.`
+        );
+      }
+      store.categorias = store.categorias.filter((c) => c.id !== id);
+      saveMockStore(store);
+      return { ok: true };
+    }
+    return request(`/categories.php?id=${id}`, { method: 'DELETE' });
   }
 
   async function crearCategoria(nombre, tipo, presupuesto) {
@@ -224,7 +248,13 @@ const API = (() => {
       Object.entries(filtros).filter(([, valor]) => valor !== undefined && valor !== '')
     );
     const params = new URLSearchParams(filtrosLimpios).toString();
-    return request(`/transactions.php?${params}`);
+    const lista = await request(`/transactions.php?${params}`);
+    return lista.map((t) => ({
+      ...t,
+      id: Number(t.id),
+      categoria_id: Number(t.categoria_id),
+      monto: Number(t.monto),
+    }));
   }
 
   async function crearTransaccion(datos) {
@@ -284,6 +314,7 @@ const API = (() => {
     cerrarSesion,
     obtenerCategorias,
     crearCategoria,
+    eliminarCategoria,
     obtenerTransacciones,
     crearTransaccion,
     eliminarTransaccion,

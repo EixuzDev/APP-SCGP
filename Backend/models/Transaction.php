@@ -50,7 +50,17 @@ class Transaction
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll();
+
+        // PDO devuelve DECIMAL como texto ("600.00"). Si el front-end
+        // recibe texto y lo suma con `+`, JavaScript CONCATENA en vez de
+        // sumar ("0" + "600.00" + "150.00" -> NaN) y los gráficos se
+        // rompen. Por eso el JSON sale con números de verdad.
+        return array_map(function (array $fila): array {
+            $fila['id'] = (int) $fila['id'];
+            $fila['categoria_id'] = (int) $fila['categoria_id'];
+            $fila['monto'] = (float) $fila['monto'];
+            return $fila;
+        }, $stmt->fetchAll());
     }
 
     public function crear(int $usuarioId, array $datos): array
@@ -154,6 +164,11 @@ class Transaction
         $stmt->bindValue(':user_id', $usuarioId, PDO::PARAM_INT);
         $stmt->bindValue(':meses', $meses, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll();
+
+        return array_map(function (array $fila): array {
+            $fila['ingresos'] = (float) $fila['ingresos'];
+            $fila['gastos'] = (float) $fila['gastos'];
+            return $fila;
+        }, $stmt->fetchAll());
     }
 }
