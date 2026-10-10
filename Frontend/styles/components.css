@@ -165,6 +165,14 @@
   vertical-align: middle;
 }
 
+/* Contenedor de altura fija para los canvas de Chart.js: con
+   maintainAspectRatio:false el gráfico se adapta a esta caja en vez
+   de crecer sin límite (la dona antes ocupaba medio panel). */
+.chart-box {
+  position: relative;
+  height: 280px;
+}
+
 /* --- Filtros del historial --- */
 .filters {
   display: flex;
@@ -403,6 +411,18 @@
   font-size: var(--fs-xs);
   margin-top: -8px;
   margin-bottom: var(--sp-3);
+}
+
+/* Variante roja del link-button (acciones destructivas, ej: eliminar
+   categoría). Dentro de un .field se alinea a la izquierda, sin los
+   márgenes negativos que usa el link de "¿Olvidaste tu contraseña?". */
+.link-button--danger {
+  color: var(--expense);
+}
+
+.field .link-button {
+  align-self: flex-start;
+  margin: var(--sp-1) 0 0;
 }
 
 /* --- Perfil de usuario --- */
